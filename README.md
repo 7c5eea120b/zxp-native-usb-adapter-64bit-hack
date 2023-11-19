@@ -53,3 +53,7 @@ not get damaged, even if they would be inappropriately casted to `uint32_t` anyw
 
 Set `DEBUG_MQALLOC=1` environment variable and launch Java with your application.
 Debug printouts from the allocator will be written on standard error stream.
+
+## Disclaimer
+
+Information and binary releases are provided here only to increase the compatibility.

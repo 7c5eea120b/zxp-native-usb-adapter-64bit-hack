@@ -69,6 +69,7 @@ Only if you want to build this patch from scratch:
 1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (mod time: 2016-11-08T22:33:33; SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
 2. Open the binary in hex editor and search for the only occurrence of `MSVCR90` string. Replace it with `MQALLOC` and save.
 3. Build the source code from this repository with MSVC, that would generate additional DLL called `MQALLOC.dll`.
+   **Hint:** Link everything statically to avoid introducing additional dependencies/issues.
 4. Open `MQALLOC.dll` with Resource Hacker and replace the manifest resource with:
    ```xml
    <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">

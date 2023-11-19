@@ -1,11 +1,11 @@
 # Patch for ZebraNativeUsbAdapter_64.dll (memory allocator workaround)
+## Crash
 
 Zebra Link-OS Multiplatform SDK for Desktop Java - Card (Build: 2.12.3782)
 comes with the `ZebraNativeUsbAdapter_64.dll`, although there is an implementation
 bug that would cause the SDK to crash with the following error when running
 under 64 bit Java.
 
-## Crash
 ```
 #
 # A fatal error has been detected by the Java Runtime Environment:

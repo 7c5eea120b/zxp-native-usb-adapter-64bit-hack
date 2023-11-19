@@ -47,6 +47,9 @@ allocator (`operator new` and `operator delete`). The additional DLL will ensure
 allocated on low virtual addresses (pointer values significantly below 2^32). Thus, the pointer values will
 not get damaged, even if they would be inappropriately casted to `uint32_t` anywhere.
 
+The implementation of the allocator is extremely rudimental but sufficient for this particular case.
+The entire original DLL would only allocate one type of objects, all with the same and known size.
+
 ### Known limitations
 
 * The hack would cause a crash if there are more than 468 open printer handles at once

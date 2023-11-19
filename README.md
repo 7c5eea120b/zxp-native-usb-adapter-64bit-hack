@@ -34,6 +34,8 @@ under 64 bit Java.
 
 That's it, now it should work under the recent versions of 64 bit Java JRE.
 
+See "Known bugs and limitations" section below if you are still having issues.
+
 ## Technical details
 
 Whenever Java SDK asks to open the connection with the printer, the original DLL would allocate
@@ -55,8 +57,24 @@ The entire original DLL would only allocate one type of objects, all with the sa
 * This patch's implementation will throw an exception once there are more than 468 open printer handles
   at once (this shouldn't ever happen in practice, unless there is a bug somewhere else).
 * Sometimes Windows fails to resolve the patched DLL's dependencies and you might get `UnsatisfiedLinkError: Can't find dependent libraries`.
-  I have no idea why this is randomly happening (race condition in DLL loader?). The problem could be worked around by calling
-  `System.loadLibrary("ZebraNativeUsbAdapter_64")` in a loop until it eventually loads succesfully (lol).
+  If you are getting this error, you can work it around by placing the following code at the very beginning of your Java application:
+  ```java
+  if (!System.getProperty("sun.arch.data.model").equals("32")) {
+      while (true) {
+          try {
+              System.loadLibrary("ZebraNativeUsbAdapter_64");
+              break;
+          } catch (UnsatisfiedLinkError e) {
+              try {
+                  Thread.sleep(250);
+              } catch (InterruptedException ex) {
+                  throw new RuntimeException(ex);
+              }
+          }
+      }
+  }
+  ```
+  The DLL is eventually going to load after a few attempts. I have no idea why this is randomly happening (race condition in Windows DLL loader?).
 
 ### Debugging
 

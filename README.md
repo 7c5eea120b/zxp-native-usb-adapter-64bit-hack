@@ -56,25 +56,6 @@ The entire original DLL would only allocate one type of objects, all with the sa
 
 * This patch's implementation will throw an exception once there are more than 468 open printer handles
   at once (this shouldn't ever happen in practice, unless there is a bug somewhere else).
-* Sometimes Windows fails to resolve the patched DLL's dependencies and you might get `UnsatisfiedLinkError: Can't find dependent libraries`.
-  If you are getting this error, you can work it around by placing the following code at the very beginning of your Java application:
-  ```java
-  if (!System.getProperty("sun.arch.data.model").equals("32")) {
-      while (true) {
-          try {
-              System.loadLibrary("ZebraNativeUsbAdapter_64");
-              break;
-          } catch (UnsatisfiedLinkError e) {
-              try {
-                  Thread.sleep(250);
-              } catch (InterruptedException ex) {
-                  throw new RuntimeException(ex);
-              }
-          }
-      }
-  }
-  ```
-  The DLL is eventually going to load after a few attempts. I have no idea why this is randomly happening (race condition in Windows DLL loader?).
 
 ### Debugging
 
@@ -88,7 +69,25 @@ Only if you want to build this patch from scratch:
 1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (mod time: 2016-11-08T22:33:33; SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
 2. Open the binary in hex editor and search for the only occurrence of `MSVCR90` string. Replace it with `MQALLOC` and save.
 3. Build the source code from this repository with MSVC, that would generate additional DLL called `MQALLOC.dll`.
-4. Use the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` (in the same directory) instead of the original DLL.
+4. Open `MQALLOC.dll` with Resource Hacker and replace the manifest resource with:
+   ```xml
+   <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
+     <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
+       <security>
+         <requestedPrivileges>
+           <requestedExecutionLevel level="asInvoker" uiAccess="false"></requestedExecutionLevel>
+         </requestedPrivileges>
+       </security>
+     </trustInfo>
+     <dependency>
+       <dependentAssembly>
+         <assemblyIdentity type="win32" name="Microsoft.VC90.CRT" version="9.0.21022.8" processorArchitecture="amd64" publicKeyToken="1fc8b3b9a1e18e3b"></assemblyIdentity>
+       </dependentAssembly>
+     </dependency>
+   </assembly>
+   ```
+   This will ensure that Windows knows where to look for the correct MSVCR DLL.
+5. Use the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` (in the same directory) instead of the original DLL.
 
 ## Disclaimer
 

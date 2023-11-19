@@ -50,10 +50,13 @@ not get damaged, even if they would be inappropriately casted to `uint32_t` anyw
 The implementation of the allocator is extremely rudimental but sufficient for this particular case.
 The entire original DLL would only allocate one type of objects, all with the same and known size.
 
-### Known limitations
+### Known bugs and limitations
 
 * This patch's implementation will throw an exception once there are more than 468 open printer handles
   at once (this shouldn't ever happen in practice, unless there is a bug somewhere else).
+* Sometimes Windows fails to resolve the patched DLL's dependencies and you might get `UnsatisfiedLinkError: Can't find dependent libraries`.
+  I have no idea why this is randomly happening (race condition in DLL loader?). The problem could be worked around by calling
+  `System.loadLibrary("ZebraNativeUsbAdapter_64")` in a loop until it eventually loads succesfully (lol).
 
 ### Debugging
 

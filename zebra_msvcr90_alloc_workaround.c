@@ -60,7 +60,7 @@
 
 uint8_t enable_debug = FALSE;
 void *mem_region = NULL;
-uint8_t alloc_table[ALLOC_CHUNKS_NUM];
+volatile uint8_t alloc_table[ALLOC_CHUNKS_NUM];
 HANDLE mutex = NULL;
 
 void fail(DWORD excCode) {
@@ -158,6 +158,7 @@ void __fastcall patch_operator_delete(void *ptr) {
             }
 
             alloc_table[i] = FALSE;
+            ReleaseMutex(mutex);
             return;
         }
     }

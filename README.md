@@ -28,8 +28,8 @@ under 64 bit Java.
 
 ## Patch
 
-Replace your original `ZebraNativeUsbAdapter_64.dll` with the two DLL files that are
-contained in the "Releases" tab.
+1. Download release: [Patch_ZebraNativeUsbAdapter_64_20231119R03.zip](https://github.com/7c5eea120b/zxp-native-usb-adapter-64bit-hack/releases/download/build-20231119R03/Patch_ZebraNativeUsbAdapter_64_20231119R03.zip)
+2. Replace your original `ZebraNativeUsbAdapter_64.dll` with the two DLL files that are contained in the archive.
 
 ### Technical details
 

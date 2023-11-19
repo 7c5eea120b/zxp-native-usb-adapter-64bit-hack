@@ -28,10 +28,13 @@ under 64 bit Java.
 
 ## Patch
 
-1. Download release: [Patch_ZebraNativeUsbAdapter_64_20231119R03.zip](https://github.com/7c5eea120b/zxp-native-usb-adapter-64bit-hack/releases/download/build-20231119R03/Patch_ZebraNativeUsbAdapter_64_20231119R03.zip)
-2. Replace your original `ZebraNativeUsbAdapter_64.dll` with the two DLL files that are contained in the archive.
+**Applying a patch:**
+1. **Download release: [Patch_ZebraNativeUsbAdapter_64_20231119R03.zip](https://github.com/7c5eea120b/zxp-native-usb-adapter-64bit-hack/releases/download/build-20231119R03/Patch_ZebraNativeUsbAdapter_64_20231119R03.zip)**
+2. **Replace your original `ZebraNativeUsbAdapter_64.dll` with the two DLL files that are contained in the archive.**
 
-### Technical details
+That's it, now it should work under the recent versions of 64 bit Java JRE.
+
+## Technical details
 
 Whenever Java SDK asks to open the connection with the printer, the original DLL would allocate
 a heap object representing the printer connection and return a pointer back to Java SDK. However, there is
@@ -53,6 +56,15 @@ not get damaged, even if they would be inappropriately casted to `uint32_t` anyw
 
 Set `DEBUG_MQALLOC=1` environment variable and launch Java with your application.
 Debug printouts from the allocator will be written on standard error stream.
+
+### Building locally
+
+Only if you want to build this patch from scratch:
+
+1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
+2. Open the binary in hex editor and search for the only occurrence of `MSVCR90` string. Replace it with `MQALLOC` and save.
+3. Build the source code from this repository with MSVC, that would generate additional DLL called `MQALLOC.dll`.
+4. Use the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` (in the same directory) instead of the original DLL.
 
 ## Disclaimer
 

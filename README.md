@@ -52,8 +52,8 @@ The entire original DLL would only allocate one type of objects, all with the sa
 
 ### Known limitations
 
-* The hack would cause a crash if there are more than 468 open printer handles at once
-  (this shouldn't ever happen in practice, unless there is a bug somewhere else).
+* This patch's implementation will throw an exception once there are more than 468 open printer handles
+  at once (this shouldn't ever happen in practice, unless there is a bug somewhere else).
 
 ### Debugging
 

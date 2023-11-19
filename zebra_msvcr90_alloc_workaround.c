@@ -48,6 +48,7 @@
 #define STATUS_DOUBLE_FREE           0xE000AC04
 #define STATUS_BAD_FREE              0xE000AC05
 #define STATUS_INIT_FAILED           0xE000AC06
+#define STATUS_MUTEX_OBTAIN          0xE000AC07
 
 #define ALLOC_CHUNKS_NUM  (468)
 #define ALLOC_CHUNK_SIZE  (280)
@@ -60,13 +61,27 @@
 uint8_t enable_debug = FALSE;
 void *mem_region = NULL;
 uint8_t alloc_table[ALLOC_CHUNKS_NUM];
+HANDLE mutex = NULL;
 
 void fail(DWORD excCode) {
+    if (excCode != STATUS_MUTEX_OBTAIN) {
+        ReleaseMutex(mutex);
+    }
+
     RaiseException(excCode, EXCEPTION_NONCONTINUABLE_EXCEPTION, 0, NULL);
 }
 
 #pragma comment(linker, "/export:??2@YAPEAX_K@Z=patch_operator_new")
 void *__fastcall patch_operator_new(unsigned __int64 size) {
+    DWORD dwWaitResult = WaitForSingleObject(mutex, INFINITE);
+
+    if (dwWaitResult != WAIT_OBJECT_0) {
+        fprintf(stderr, "[MQALLOC] BUG! Failed to obtain mutex in patch_operator_new.\n");
+        fflush(stderr);
+        fail(STATUS_MUTEX_OBTAIN);
+        return NULL;
+    }
+
     if (mem_region == NULL) {
         fprintf(stderr, "[MQALLOC] BUG! Allocation failed, mem_region is not initialized.\n");
         fflush(stderr);
@@ -95,6 +110,7 @@ void *__fastcall patch_operator_new(unsigned __int64 size) {
                 fflush(stderr);
             }
 
+            ReleaseMutex(mutex);
             return out;
         }
     }
@@ -108,6 +124,15 @@ void *__fastcall patch_operator_new(unsigned __int64 size) {
 
 #pragma comment(linker, "/export:??3@YAXPEAX@Z=patch_operator_delete")
 void __fastcall patch_operator_delete(void *ptr) {
+    DWORD dwWaitResult = WaitForSingleObject(mutex, INFINITE);
+
+    if (dwWaitResult != WAIT_OBJECT_0) {
+        fprintf(stderr, "[MQALLOC] BUG! Failed to obtain mutex in patch_operator_delete.\n");
+        fflush(stderr);
+        fail(STATUS_MUTEX_OBTAIN);
+        return;
+    }
+
     if (mem_region == NULL) {
         fprintf(stderr, "[MQALLOC] BUG! Deallocation failed, mem_region is not initialized.\n");
         fflush(stderr);
@@ -188,6 +213,15 @@ BOOL WINAPI DllMain(
 
             if (mem_region == NULL) {
                 fprintf(stderr, "[MQALLOC] BUG! Failed to allocate low-address region.\n");
+                fflush(stderr);
+                fail(STATUS_INIT_FAILED);
+                return FALSE;
+            }
+
+            mutex = CreateMutex(NULL, FALSE, NULL);
+
+            if (mutex == NULL) {
+                fprintf(stderr, "[MQALLOC] Failed to create mutex.\n");
                 fflush(stderr);
                 fail(STATUS_INIT_FAILED);
                 return FALSE;

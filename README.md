@@ -57,17 +57,17 @@ The entire original DLL would only allocate one type of objects, all with the sa
 * This patch's implementation will throw an exception once there are more than 468 open printer handles
   at once (this shouldn't ever happen in practice, unless there is a bug somewhere else).
 
-### Bugs
+### Debugging
+
+Set `DEBUG_MQALLOC=1` environment variable and launch Java with your application.
+Debug printouts from the allocator will be written on standard error stream.
+
+### Bug checks
 
 The patch contains series of sanity checks, in case when anything odd will be detected, the message starting with `[MQALLOC] BUG!`
 will be logged on the standard error stream and the entire JRE will be torn down with an exception.
 
 In case of any problems, please report them through [GitHub Issues](https://github.com/7c5eea120b/zxp-native-usb-adapter-64bit-hack/issues).
-
-### Debugging
-
-Set `DEBUG_MQALLOC=1` environment variable and launch Java with your application.
-Debug printouts from the allocator will be written on standard error stream.
 
 ### Building locally
 

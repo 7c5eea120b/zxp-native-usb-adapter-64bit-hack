@@ -29,7 +29,7 @@ under 64 bit Java.
 ## Patch
 
 **Applying a patch:**
-1. **Download release: [Patch_ZebraNativeUsbAdapter_64_20231120R01.zip](https://github.com/7c5eea120b/zxp-native-usb-adapter-64bit-hack/releases/download/build-20231120R01/Patch_ZebraNativeUsbAdapter_64_20231120R01.zip)**
+1. **Download release: [Patch_ZebraNativeUsbAdapter_64_20231120R02.zip](https://github.com/7c5eea120b/zxp-native-usb-adapter-64bit-hack/releases/download/build-20231120R02/Patch_ZebraNativeUsbAdapter_64_20231120R02.zip)**
 2. **Replace your original `ZebraNativeUsbAdapter_64.dll` with the two DLL files that are contained in the archive.**
 
 That's it, now it should work under the recent versions of 64 bit Java JRE/JDK.
@@ -43,16 +43,19 @@ Kindly please star the project on GitHub to indicate that this patch works corre
 Whenever Java SDK asks to open the connection with the printer, the original DLL would allocate
 a heap object representing the printer connection and return a pointer back to Java SDK. However, there is
 an implementation bug that would cause the DLL to cast the pointer to `uint32_t` before returning it.
-Similarly, the exported functions that allow subsequent printer interaction would also shrink the pointer right
-in their prologue.
+Similarly, the other DLL functions that allow subsequent interaction with the printer would also shrink
+the pointer after receiving it as the argument.
 
-The patch features a special proxy DLL called `MQALLOC.dll` that re-implements the C++ dynamic
+The patch features a special proxy DLL called `MQALLOC.dll` that hooks and re-implements the C++ dynamic
 allocator (`operator new` and `operator delete`). The additional DLL will ensure that heap objects are always
 allocated on low virtual addresses (pointer values significantly below 2^32). Thus, the pointer values will
 not get damaged, even if they would be inappropriately casted to `uint32_t` anywhere.
 
 The implementation of the allocator is extremely rudimental but sufficient for this particular case.
 The entire original DLL would only allocate one type of objects, all with the same and known size.
+
+Additionally, the original DLL is also slightly modified so the `Open()` call no longer leaks memory
+when it fails to open the printer.
 
 ### Known bugs and limitations
 
@@ -73,30 +76,13 @@ will be logged on the standard error stream and the entire JRE will be torn down
 
 Only if you want to build this patch from scratch:
 
-1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (mod time: 2016-11-08T22:33:33; SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
-2. Open the binary in hex editor and search for the only occurrence of `MSVCR90` string. Replace it with `MQALLOC` and save.
-3. Build the source code from this repository with MSVC, that would generate additional DLL called `MQALLOC.dll`.
-
-   **Hint:** Link everything statically to avoid introducing additional dependencies/issues.
-5. Open `MQALLOC.dll` with Resource Hacker and replace the manifest resource with:
-   ```xml
-   <assembly xmlns="urn:schemas-microsoft-com:asm.v1" manifestVersion="1.0">
-     <trustInfo xmlns="urn:schemas-microsoft-com:asm.v3">
-       <security>
-         <requestedPrivileges>
-           <requestedExecutionLevel level="asInvoker" uiAccess="false"></requestedExecutionLevel>
-         </requestedPrivileges>
-       </security>
-     </trustInfo>
-     <dependency>
-       <dependentAssembly>
-         <assemblyIdentity type="win32" name="Microsoft.VC90.CRT" version="9.0.21022.8" processorArchitecture="amd64" publicKeyToken="1fc8b3b9a1e18e3b"></assemblyIdentity>
-       </dependentAssembly>
-     </dependency>
-   </assembly>
+1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
+2. Execute the following command to patch the original DLL (this command doesn't need to be run inside git repository):
    ```
-   This will ensure that Windows knows where to look for the correct MSVCR DLL.
-6. Use the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` (in the same directory) instead of the original DLL.
+   git apply < ZebraNativeUsbAdapter_64.diff
+   ```
+3. Build the source code from this repository with CMake (using MSVC, in "Release" profile), this would generate `MQALLOC.dll`.
+4. Put the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` instead of the original DLL. Both files should be placed in the same directory.
 
 ## Disclaimer
 

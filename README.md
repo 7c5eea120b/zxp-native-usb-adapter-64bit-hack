@@ -82,7 +82,7 @@ Only if you want to build this patch from scratch:
    git apply < ZebraNativeUsbAdapter_64.diff
    ```
 3. Build the source code from this repository with CMake (using MSVC, in "Release" profile), this would generate `MQALLOC.dll`.
-4. Put the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` instead of the original DLL. Both files should be in the same directory.
+4. Put the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` instead of the original DLL. Both files should be placed in the same directory.
 
 ## Disclaimer
 

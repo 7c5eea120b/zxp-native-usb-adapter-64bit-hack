@@ -34,7 +34,7 @@ under 64 bit Java.
 
 That's it, now it should work under the recent versions of 64 bit Java JRE.
 
-See "Known bugs and limitations" section below if you are still having issues.
+Kindly please star the project on GitHub to indicate that this patch works correctly, or please file an issue otherwise.
 
 ---
 
@@ -68,8 +68,6 @@ Debug printouts from the allocator will be written on standard error stream.
 
 The patch contains series of sanity checks, in case when anything odd will be detected, the message starting with `[MQALLOC] BUG!`
 will be logged on the standard error stream and the entire JRE will be torn down with an exception.
-
-In case of any problems, please report them through [GitHub Issues](https://github.com/7c5eea120b/zxp-native-usb-adapter-64bit-hack/issues).
 
 ### Building locally
 

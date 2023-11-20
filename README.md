@@ -76,12 +76,12 @@ will be logged on the standard error stream and the entire JRE will be torn down
 
 Only if you want to build this patch from scratch:
 
-1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (mod time: 2016-11-08T22:33:33; SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
+1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
 2. Execute the following command to patch the original DLL (this command doesn't need to be run inside git repository):
    ```
    git apply < ZebraNativeUsbAdapter_64.diff
    ```
-3. Build the source code from this repository with CMake (using MSVC), this would generate `MQALLOC.dll`.
+3. Build the source code from this repository with CMake (using MSVC, in "Release" profile), this would generate `MQALLOC.dll`.
 4. Put the patched `ZebraNativeUsbAdapter_64.dll` that you've got from step (2) together with `MQALLOC.dll` instead of the original DLL. Both files should be in the same directory.
 
 ## Disclaimer

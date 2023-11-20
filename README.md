@@ -36,6 +36,8 @@ That's it, now it should work under the recent versions of 64 bit Java JRE.
 
 See "Known bugs and limitations" section below if you are still having issues.
 
+---
+
 ## Technical details
 
 Whenever Java SDK asks to open the connection with the printer, the original DLL would allocate

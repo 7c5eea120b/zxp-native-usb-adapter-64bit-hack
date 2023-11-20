@@ -79,6 +79,9 @@ Only if you want to build this patch from scratch:
 1. Get the original `ZebraNativeUsbAdapter_64.dll` from the SDK (SHA256: `034bd1293128507120005ebb6a5ba510b614932292e648e15a77677c09c63f1e`).
 2. Execute the following command to patch the original DLL (this command doesn't need to be run inside git repository):
    ```
+   # ensure that the diff file doesn't have CRLF
+   dos2unix ZebraNativeUsbAdapter_64.diff
+   # apply the patch to the binary file
    git apply < ZebraNativeUsbAdapter_64.diff
    ```
 3. Build the source code from this repository with CMake (using MSVC, in "Release" profile), this would generate `MQALLOC.dll`.
